@@ -1,0 +1,8 @@
+{
+  "name": "profit-dashboard-pro",
+  "version": "1.0.0",
+  "description": "Profit Dashboard Pro - SaaS voor winstberekening",
+  "scripts": {
+    "start": "echo 'Static site - no build needed'"
+  }
+}
