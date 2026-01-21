@@ -9,45 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1933 100%);
-        }
-        
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border-left: 4px solid #667eea;
-        }
-        
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .gradient-bg { background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1933 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-card { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-left: 4px solid #667eea; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
-
-    <!-- App Container -->
     <div id="app">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="text-center">
@@ -61,9 +32,9 @@
         // ============================================
         // SUPABASE CONFIGURATIE
         // ============================================
-        // ⚠️ PAS DEZE AAN MET JOUW SUPABASE GEGEVENS
-        const SUPABASE_URL = 'https://oljhvvrbgcbjxfvrzoop.supabase.co'';  // Bijv: https://abc123.supabase.co
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9samh2dnJiZ2NianhmdnJ6b29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDk1NzksImV4cCI6MjA4NDQ4NTU3OX0.ITh_BQsW_O7xTxWMbwgvtwza6eaUOHZs03h02HsFD6c';  // Lang token dat begint met 'eyJ...'
+        // BELANGRIJK: Vul hier je Supabase gegevens in!
+        const SUPABASE_URL = 'https://oljhvvrbgcbjxfvrzoop.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9samh2dnJiZ2NianhmdnJ6b29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDk1NzksImV4cCI6MjA4NDQ4NTU3OX0.ITh_BQsW_O7xTxWMbwgvtwza6eaUOHZs03h02HsFD6c';
         
         // Initialize Supabase
         const { createClient } = supabase;
@@ -81,21 +52,15 @@
         // UTILITY FUNCTIONS
         // ============================================
         const formatCurrency = (amount) => {
-            return new Intl.NumberFormat('nl-BE', {
-                style: 'currency',
-                currency: 'EUR'
-            }).format(amount || 0);
+            return new Intl.NumberFormat('nl-BE', { style: 'currency', currency: 'EUR' }).format(amount || 0);
         };
         
         const calculateProjectStats = (project) => {
             const netRevenue = project.project_price - (project.external_costs || 0);
             const hourlyRate = netRevenue / (project.estimated_hours || 1);
-            const minRate = userProfile ? 
-                (userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month 
-                : 0;
+            const minRate = userProfile ? (userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month : 0;
             const profit = hourlyRate - minRate;
             const isProfitable = profit >= 0;
-            
             return { netRevenue, hourlyRate, minRate, profit, isProfitable };
         };
         
@@ -107,15 +72,9 @@
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: {
-                        data: {
-                            full_name: fullName
-                        }
-                    }
+                    options: { data: { full_name: fullName } }
                 });
-                
                 if (error) throw error;
-                
                 alert('✅ Account aangemaakt! Check je email voor verificatie.');
                 currentView = 'login';
                 render();
@@ -126,13 +85,8 @@
         
         async function signIn(email, password) {
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
-                
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) throw error;
-                
                 currentUser = data.user;
                 await loadUserData();
                 currentView = 'dashboard';
@@ -155,87 +109,49 @@
         // DATA FUNCTIONS
         // ============================================
         async function loadUserData() {
-            // Load profile
-            const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', currentUser.id)
-                .single();
-            
+            const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
             userProfile = profile;
-            
-            // Load projects
             await loadProjects();
         }
         
         async function loadProjects() {
-            const { data } = await supabaseClient
-                .from('projects')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false });
-            
+            const { data } = await supabaseClient.from('projects').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
             projects = data || [];
         }
         
         async function addProject(projectData) {
-            const { error } = await supabaseClient
-                .from('projects')
-                .insert([{
-                    ...projectData,
-                    user_id: currentUser.id
-                }]);
-            
+            const { error } = await supabaseClient.from('projects').insert([{ ...projectData, user_id: currentUser.id }]);
             if (error) {
                 alert('❌ Fout: ' + error.message);
                 return false;
             }
             
-            // INCREMENT LIFETIME COUNTER (prevents freemium loophole)
+            // INCREMENT LIFETIME COUNTER - Prevents freemium loophole
             const newCount = (userProfile.lifetime_projects_created || 0) + 1;
-            const { error: profileError } = await supabaseClient
-                .from('profiles')
-                .update({ 
-                    lifetime_projects_created: newCount
-                })
-                .eq('id', currentUser.id);
+            const { error: profileError } = await supabaseClient.from('profiles').update({ lifetime_projects_created: newCount }).eq('id', currentUser.id);
+            if (profileError) console.error('Failed to update lifetime counter:', profileError);
             
-            if (profileError) {
-                console.error('Failed to update lifetime counter:', profileError);
-            }
-            
-            await loadProjects();
+            await loadUserData();
             return true;
         }
         
         async function deleteProject(projectId) {
             if (!confirm('Weet je zeker dat je dit project wilt verwijderen?')) return;
-            
-            const { error } = await supabaseClient
-                .from('projects')
-                .delete()
-                .eq('id', projectId);
-            
+            const { error } = await supabaseClient.from('projects').delete().eq('id', projectId);
             if (error) {
                 alert('❌ Fout: ' + error.message);
                 return;
             }
-            
             await loadProjects();
             render();
         }
         
         async function updateProfile(profileData) {
-            const { error } = await supabaseClient
-                .from('profiles')
-                .update(profileData)
-                .eq('id', currentUser.id);
-            
+            const { error } = await supabaseClient.from('profiles').update(profileData).eq('id', currentUser.id);
             if (error) {
                 alert('❌ Fout: ' + error.message);
                 return false;
             }
-            
             await loadUserData();
             return true;
         }
@@ -248,49 +164,21 @@
             return `
                 <div class="max-w-md mx-auto fade-in">
                     <div class="glass-card rounded-2xl p-8 shadow-2xl">
-                        <h1 class="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                            Profit Dashboard Pro
-                        </h1>
+                        <h1 class="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Profit Dashboard Pro</h1>
                         <p class="text-slate-300 text-center mb-8">Door pixelit.be</p>
-                        
                         <form onsubmit="handleLogin(event)" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Email</label>
-                                <input 
-                                    type="email" 
-                                    id="login-email" 
-                                    required
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400"
-                                    placeholder="jouw@email.be"
-                                >
+                                <input type="email" id="login-email" required class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400" placeholder="jouw@email.be">
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Wachtwoord</label>
-                                <input 
-                                    type="password" 
-                                    id="login-password" 
-                                    required
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="••••••••"
-                                >
+                                <input type="password" id="login-password" required class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="••••••••">
                             </div>
-                            
-                            <button 
-                                type="submit"
-                                class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition transform hover:-translate-y-0.5"
-                            >
-                                Inloggen
-                            </button>
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition transform hover:-translate-y-0.5">Inloggen</button>
                         </form>
-                        
                         <div class="mt-6 text-center">
-                            <p class="text-slate-300">
-                                Nog geen account? 
-                                <a href="#" onclick="currentView='signup'; render(); return false;" class="text-indigo-400 hover:text-indigo-300 font-semibold">
-                                    Registreer nu
-                                </a>
-                            </p>
+                            <p class="text-slate-300">Nog geen account? <a href="#" onclick="currentView='signup'; render(); return false;" class="text-indigo-400 hover:text-indigo-300 font-semibold">Registreer nu</a></p>
                         </div>
                     </div>
                 </div>
@@ -301,61 +189,25 @@
             return `
                 <div class="max-w-md mx-auto fade-in">
                     <div class="glass-card rounded-2xl p-8 shadow-2xl">
-                        <h1 class="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                            Account Aanmaken
-                        </h1>
+                        <h1 class="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Account Aanmaken</h1>
                         <p class="text-slate-300 text-center mb-8">Start gratis, upgrade wanneer je wilt</p>
-                        
                         <form onsubmit="handleSignup(event)" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Volledige Naam</label>
-                                <input 
-                                    type="text" 
-                                    id="signup-name" 
-                                    required
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400"
-                                    placeholder="Jan Janssens"
-                                >
+                                <input type="text" id="signup-name" required class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400" placeholder="Jan Janssens">
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Email</label>
-                                <input 
-                                    type="email" 
-                                    id="signup-email" 
-                                    required
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400"
-                                    placeholder="jouw@email.be"
-                                >
+                                <input type="email" id="signup-email" required class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white placeholder-slate-400" placeholder="jouw@email.be">
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Wachtwoord</label>
-                                <input 
-                                    type="password" 
-                                    id="signup-password" 
-                                    required
-                                    minlength="6"
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="Minimaal 6 karakters"
-                                >
+                                <input type="password" id="signup-password" required minlength="6" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="Minimaal 6 karakters">
                             </div>
-                            
-                            <button 
-                                type="submit"
-                                class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition transform hover:-translate-y-0.5"
-                            >
-                                Account Aanmaken
-                            </button>
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition transform hover:-translate-y-0.5">Account Aanmaken</button>
                         </form>
-                        
                         <div class="mt-6 text-center">
-                            <p class="text-slate-300">
-                                Al een account? 
-                                <a href="#" onclick="currentView='login'; render(); return false;" class="text-indigo-400 hover:text-indigo-300 font-semibold">
-                                    Log in
-                                </a>
-                            </p>
+                            <p class="text-slate-300">Al een account? <a href="#" onclick="currentView='login'; render(); return false;" class="text-indigo-400 hover:text-indigo-300 font-semibold">Log in</a></p>
                         </div>
                     </div>
                 </div>
@@ -363,101 +215,54 @@
         }
         
         function DashboardView() {
-            // Calculate stats
             const totalProjects = projects.length;
             const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'planned').length;
             const totalRevenue = projects.reduce((sum, p) => sum + (p.project_price || 0), 0);
             const totalEstimatedHours = projects.reduce((sum, p) => sum + (p.estimated_hours || 0), 0);
             const averageHourlyRate = totalRevenue / (totalEstimatedHours || 1);
-            
             const minRate = (userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month;
             
-            // Free tier check - use lifetime counter to prevent loophole
+            // Freemium check with LIFETIME counter (prevents loophole)
             const isFree = userProfile.subscription_tier === 'free';
             const lifetimeCount = userProfile.lifetime_projects_created || 0;
             const canAddProject = !isFree || lifetimeCount < 3;
             
             return `
                 <div class="max-w-7xl mx-auto fade-in">
-                    <!-- Header -->
                     <div class="flex justify-between items-center mb-8">
                         <div>
                             <h1 class="text-3xl font-bold">Dashboard</h1>
                             <p class="text-slate-300 mt-1">Welkom terug, ${userProfile.full_name || 'User'}!</p>
                         </div>
                         <div class="flex gap-3">
-                            <button 
-                                onclick="currentView='settings'; render();"
-                                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition"
-                            >
-                                ⚙️ Instellingen
-                            </button>
-                            <button 
-                                onclick="signOut()"
-                                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition"
-                            >
-                                Uitloggen
-                            </button>
+                            <button onclick="currentView='settings'; render();" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition">⚙️ Instellingen</button>
+                            <button onclick="signOut()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition">Uitloggen</button>
                         </div>
                     </div>
                     
-                    <!-- Subscription Badge -->
                     ${isFree ? `
                         <div class="mb-6 p-4 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/30 rounded-lg">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="font-semibold">🆓 Gratis Account - ${lifetimeCount}/3 projecten aangemaakt</p>
-                                    <p class="text-sm text-slate-300">Upgrade naar Premium voor onbeperkt projecten + meer features!</p>
+                                    <p class="text-sm text-slate-300">Upgrade naar Premium voor onbeperkt projecten!</p>
                                 </div>
-                                <button class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition">
-                                    Upgrade nu →
-                                </button>
+                                <button class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition">Upgrade nu →</button>
                             </div>
                         </div>
                     ` : ''}
                     
-                    <!-- Stats Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <div class="stat-card glass-card rounded-xl p-6">
-                            <p class="text-slate-300 text-sm">Totaal Projecten</p>
-                            <p class="text-3xl font-bold mt-2">${totalProjects}</p>
-                        </div>
-                        
-                        <div class="stat-card glass-card rounded-xl p-6">
-                            <p class="text-slate-300 text-sm">Actieve Projecten</p>
-                            <p class="text-3xl font-bold mt-2">${activeProjects}</p>
-                        </div>
-                        
-                        <div class="stat-card glass-card rounded-xl p-6">
-                            <p class="text-slate-300 text-sm">Totale Omzet</p>
-                            <p class="text-3xl font-bold mt-2">${formatCurrency(totalRevenue)}</p>
-                        </div>
-                        
-                        <div class="stat-card glass-card rounded-xl p-6">
-                            <p class="text-slate-300 text-sm">Gem. Uurtarief</p>
-                            <p class="text-3xl font-bold mt-2">${formatCurrency(averageHourlyRate)}</p>
-                            <p class="text-xs mt-1 ${averageHourlyRate >= minRate ? 'text-green-400' : 'text-red-400'}">
-                                Min. nodig: ${formatCurrency(minRate)}
-                            </p>
-                        </div>
+                        <div class="stat-card glass-card rounded-xl p-6"><p class="text-slate-300 text-sm">Totaal Projecten</p><p class="text-3xl font-bold mt-2">${totalProjects}</p></div>
+                        <div class="stat-card glass-card rounded-xl p-6"><p class="text-slate-300 text-sm">Actieve Projecten</p><p class="text-3xl font-bold mt-2">${activeProjects}</p></div>
+                        <div class="stat-card glass-card rounded-xl p-6"><p class="text-slate-300 text-sm">Totale Omzet</p><p class="text-3xl font-bold mt-2">${formatCurrency(totalRevenue)}</p></div>
+                        <div class="stat-card glass-card rounded-xl p-6"><p class="text-slate-300 text-sm">Gem. Uurtarief</p><p class="text-3xl font-bold mt-2">${formatCurrency(averageHourlyRate)}</p><p class="text-xs mt-1 ${averageHourlyRate >= minRate ? 'text-green-400' : 'text-red-400'}">Min. nodig: ${formatCurrency(minRate)}</p></div>
                     </div>
                     
-                    <!-- Projects Section -->
                     <div class="glass-card rounded-xl p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold">Jouw Projecten</h2>
-                            ${canAddProject ? `
-                                <button 
-                                    onclick="currentView='addProject'; render();"
-                                    class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition"
-                                >
-                                    + Nieuw Project
-                                </button>
-                            ` : `
-                                <div class="text-sm text-yellow-400">
-                                    ⚠️ Gratis limiet bereikt - Upgrade voor meer projecten
-                                </div>
-                            `}
+                            ${canAddProject ? `<button onclick="currentView='addProject'; render();" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition">+ Nieuw Project</button>` : `<div class="text-sm text-yellow-400">⚠️ Gratis limiet bereikt - Upgrade voor meer projecten</div>`}
                         </div>
                         
                         ${projects.length === 0 ? `
@@ -480,37 +285,15 @@
                                                 </div>
                                                 <div class="text-right">
                                                     <p class="text-2xl font-bold">${formatCurrency(project.project_price)}</p>
-                                                    <p class="text-sm ${stats.isProfitable ? 'text-green-400' : 'text-red-400'}">
-                                                        ${formatCurrency(stats.hourlyRate)}/uur
-                                                    </p>
+                                                    <p class="text-sm ${stats.isProfitable ? 'text-green-400' : 'text-red-400'}">${formatCurrency(stats.hourlyRate)}/uur</p>
                                                 </div>
                                             </div>
-                                            
                                             <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/10">
-                                                <div>
-                                                    <p class="text-xs text-slate-400">Geschat</p>
-                                                    <p class="font-semibold">${project.estimated_hours}u</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-xs text-slate-400">Externe Kosten</p>
-                                                    <p class="font-semibold">${formatCurrency(project.external_costs)}</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-xs text-slate-400">Winst/Verlies</p>
-                                                    <p class="font-semibold ${stats.isProfitable ? 'text-green-400' : 'text-red-400'}">
-                                                        ${stats.isProfitable ? '+' : ''}${formatCurrency(stats.profit)}/u
-                                                    </p>
-                                                </div>
+                                                <div><p class="text-xs text-slate-400">Geschat</p><p class="font-semibold">${project.estimated_hours}u</p></div>
+                                                <div><p class="text-xs text-slate-400">Externe Kosten</p><p class="font-semibold">${formatCurrency(project.external_costs)}</p></div>
+                                                <div><p class="text-xs text-slate-400">Winst/Verlies</p><p class="font-semibold ${stats.isProfitable ? 'text-green-400' : 'text-red-400'}">${stats.isProfitable ? '+' : ''}${formatCurrency(stats.profit)}/u</p></div>
                                             </div>
-                                            
-                                            <div class="mt-4 flex gap-2">
-                                                <button 
-                                                    onclick="deleteProject('${project.id}')"
-                                                    class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded text-sm transition"
-                                                >
-                                                    🗑️ Verwijderen
-                                                </button>
-                                            </div>
+                                            <div class="mt-4"><button onclick="deleteProject('${project.id}')" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded text-sm transition">🗑️ Verwijderen</button></div>
                                         </div>
                                     `;
                                 }).join('')}
@@ -527,92 +310,42 @@
                     <div class="glass-card rounded-2xl p-8">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold">Nieuw Project Toevoegen</h2>
-                            <button onclick="currentView='dashboard'; render();" class="text-slate-300 hover:text-white">
-                                ✕ Sluiten
-                            </button>
+                            <button onclick="currentView='dashboard'; render();" class="text-slate-300 hover:text-white">✕ Sluiten</button>
                         </div>
-                        
                         <form onsubmit="handleAddProject(event)" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Projectnaam *</label>
-                                <input 
-                                    type="text" 
-                                    id="project-name" 
-                                    required
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="Bijv: Website Klant X"
-                                >
+                                <input type="text" id="project-name" required class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="Bijv: Website Klant X">
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Klantnaam</label>
-                                <input 
-                                    type="text" 
-                                    id="project-client"
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="Bedrijf BV"
-                                >
+                                <input type="text" id="project-client" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="Bedrijf BV">
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Beschrijving</label>
-                                <textarea 
-                                    id="project-description"
-                                    rows="3"
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="Optionele beschrijving..."
-                                ></textarea>
+                                <textarea id="project-description" rows="3" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="Optionele beschrijving..."></textarea>
                             </div>
-                            
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium mb-2">Projectprijs (excl. BTW) *</label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-3 text-slate-400">€</span>
-                                        <input 
-                                            type="number" 
-                                            id="project-price" 
-                                            required
-                                            step="0.01"
-                                            class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                            placeholder="2500"
-                                        >
+                                        <input type="number" id="project-price" required step="0.01" class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="2500">
                                     </div>
                                 </div>
-                                
                                 <div>
                                     <label class="block text-sm font-medium mb-2">Externe Kosten</label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-3 text-slate-400">€</span>
-                                        <input 
-                                            type="number" 
-                                            id="project-costs"
-                                            step="0.01"
-                                            class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                            placeholder="0"
-                                        >
+                                        <input type="number" id="project-costs" step="0.01" class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="0">
                                     </div>
                                 </div>
                             </div>
-                            
                             <div>
                                 <label class="block text-sm font-medium mb-2">Geschatte Uren *</label>
-                                <input 
-                                    type="number" 
-                                    id="project-hours" 
-                                    required
-                                    step="0.5"
-                                    class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                    placeholder="20"
-                                >
+                                <input type="number" id="project-hours" required step="0.5" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white" placeholder="20">
                             </div>
-                            
-                            <button 
-                                type="submit"
-                                class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition mt-6"
-                            >
-                                Project Toevoegen
-                            </button>
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition mt-6">Project Toevoegen</button>
                         </form>
                     </div>
                 </div>
@@ -625,67 +358,37 @@
                     <div class="glass-card rounded-2xl p-8">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold">Instellingen</h2>
-                            <button onclick="currentView='dashboard'; render();" class="text-slate-300 hover:text-white">
-                                ← Terug
-                            </button>
+                            <button onclick="currentView='dashboard'; render();" class="text-slate-300 hover:text-white">← Terug</button>
                         </div>
-                        
                         <form onsubmit="handleUpdateProfile(event)" class="space-y-6">
                             <div>
                                 <h3 class="font-semibold mb-4">Jouw Nulpunt</h3>
-                                
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium mb-2">Gewenst Netto Maandinkomen</label>
                                         <div class="relative">
                                             <span class="absolute left-3 top-3 text-slate-400">€</span>
-                                            <input 
-                                                type="number" 
-                                                id="settings-income"
-                                                value="${userProfile.target_monthly_income}"
-                                                class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                            >
+                                            <input type="number" id="settings-income" value="${userProfile.target_monthly_income}" class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white">
                                         </div>
                                     </div>
-                                    
                                     <div>
                                         <label class="block text-sm font-medium mb-2">Vaste Bedrijfskosten p/m</label>
                                         <div class="relative">
                                             <span class="absolute left-3 top-3 text-slate-400">€</span>
-                                            <input 
-                                                type="number" 
-                                                id="settings-costs"
-                                                value="${userProfile.fixed_monthly_costs}"
-                                                class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                            >
+                                            <input type="number" id="settings-costs" value="${userProfile.fixed_monthly_costs}" class="w-full pl-8 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white">
                                         </div>
                                     </div>
-                                    
                                     <div>
                                         <label class="block text-sm font-medium mb-2">Declarabele uren per maand</label>
-                                        <input 
-                                            type="number" 
-                                            id="settings-hours"
-                                            value="${userProfile.billable_hours_per_month}"
-                                            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white"
-                                        >
+                                        <input type="number" id="settings-hours" value="${userProfile.billable_hours_per_month}" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-white">
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="p-4 bg-indigo-500/20 rounded-lg border border-indigo-500/30">
                                 <p class="text-sm font-semibold mb-1">Jouw minimale uurtarief</p>
-                                <p class="text-3xl font-bold text-indigo-400">
-                                    ${formatCurrency((userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month)}
-                                </p>
+                                <p class="text-3xl font-bold text-indigo-400">${formatCurrency((userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month)}</p>
                             </div>
-                            
-                            <button 
-                                type="submit"
-                                class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition"
-                            >
-                                Instellingen Opslaan
-                            </button>
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition">Instellingen Opslaan</button>
                         </form>
                     </div>
                 </div>
@@ -712,7 +415,6 @@
         
         async function handleAddProject(event) {
             event.preventDefault();
-            
             const projectData = {
                 name: document.getElementById('project-name').value,
                 client_name: document.getElementById('project-client').value,
@@ -722,7 +424,6 @@
                 estimated_hours: parseFloat(document.getElementById('project-hours').value),
                 status: 'planned'
             };
-            
             const success = await addProject(projectData);
             if (success) {
                 currentView = 'dashboard';
@@ -732,13 +433,11 @@
         
         async function handleUpdateProfile(event) {
             event.preventDefault();
-            
             const profileData = {
                 target_monthly_income: parseFloat(document.getElementById('settings-income').value),
                 fixed_monthly_costs: parseFloat(document.getElementById('settings-costs').value),
                 billable_hours_per_month: parseInt(document.getElementById('settings-hours').value)
             };
-            
             const success = await updateProfile(profileData);
             if (success) {
                 alert('✅ Instellingen opgeslagen!');
@@ -752,43 +451,23 @@
         // ============================================
         function render() {
             const app = document.getElementById('app');
-            
             let content = '';
-            
             switch(currentView) {
-                case 'login':
-                    content = LoginView();
-                    break;
-                case 'signup':
-                    content = SignupView();
-                    break;
-                case 'dashboard':
-                    content = DashboardView();
-                    break;
-                case 'addProject':
-                    content = AddProjectView();
-                    break;
-                case 'settings':
-                    content = SettingsView();
-                    break;
-                default:
-                    content = LoginView();
+                case 'login': content = LoginView(); break;
+                case 'signup': content = SignupView(); break;
+                case 'dashboard': content = DashboardView(); break;
+                case 'addProject': content = AddProjectView(); break;
+                case 'settings': content = SettingsView(); break;
+                default: content = LoginView();
             }
-            
-            app.innerHTML = `
-                <div class="container mx-auto p-4 py-12">
-                    ${content}
-                </div>
-            `;
+            app.innerHTML = '<div class="container mx-auto p-4 py-12">' + content + '</div>';
         }
         
         // ============================================
         // INITIALIZATION
         // ============================================
         async function init() {
-            // Check for active session
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
             if (session) {
                 currentUser = session.user;
                 await loadUserData();
@@ -796,8 +475,6 @@
             } else {
                 currentView = 'login';
             }
-            
-            // Listen for auth changes
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_OUT') {
                     currentUser = null;
@@ -807,11 +484,9 @@
                     render();
                 }
             });
-            
             render();
         }
         
-        // Start app
         init();
     </script>
 </body>
