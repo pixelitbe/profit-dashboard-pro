@@ -62,7 +62,7 @@
         // SUPABASE CONFIGURATIE
         // ============================================
         // ⚠️ PAS DEZE AAN MET JOUW SUPABASE GEGEVENS
-        const SUPABASE_URL = 'https://oljhvvrbgcbjxfvrzoop.supabase.co';  // Bijv: https://abc123.supabase.co
+        const SUPABASE_URL = 'https://oljhvvrbgcbjxfvrzoop.supabase.co'';  // Bijv: https://abc123.supabase.co
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9samh2dnJiZ2NianhmdnJ6b29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDk1NzksImV4cCI6MjA4NDQ4NTU3OX0.ITh_BQsW_O7xTxWMbwgvtwza6eaUOHZs03h02HsFD6c';  // Lang token dat begint met 'eyJ...'
         
         // Initialize Supabase
@@ -189,6 +189,19 @@
             if (error) {
                 alert('❌ Fout: ' + error.message);
                 return false;
+            }
+            
+            // INCREMENT LIFETIME COUNTER (prevents freemium loophole)
+            const newCount = (userProfile.lifetime_projects_created || 0) + 1;
+            const { error: profileError } = await supabaseClient
+                .from('profiles')
+                .update({ 
+                    lifetime_projects_created: newCount
+                })
+                .eq('id', currentUser.id);
+            
+            if (profileError) {
+                console.error('Failed to update lifetime counter:', profileError);
             }
             
             await loadProjects();
@@ -359,9 +372,10 @@
             
             const minRate = (userProfile.target_monthly_income + userProfile.fixed_monthly_costs) / userProfile.billable_hours_per_month;
             
-            // Free tier check
+            // Free tier check - use lifetime counter to prevent loophole
             const isFree = userProfile.subscription_tier === 'free';
-            const canAddProject = !isFree || projects.length < 3;
+            const lifetimeCount = userProfile.lifetime_projects_created || 0;
+            const canAddProject = !isFree || lifetimeCount < 3;
             
             return `
                 <div class="max-w-7xl mx-auto fade-in">
@@ -392,7 +406,7 @@
                         <div class="mb-6 p-4 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/30 rounded-lg">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="font-semibold">🆓 Gratis Account - ${projects.length}/3 projecten</p>
+                                    <p class="font-semibold">🆓 Gratis Account - ${lifetimeCount}/3 projecten aangemaakt</p>
                                     <p class="text-sm text-slate-300">Upgrade naar Premium voor onbeperkt projecten + meer features!</p>
                                 </div>
                                 <button class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-semibold hover:shadow-lg transition">
